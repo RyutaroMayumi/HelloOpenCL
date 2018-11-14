@@ -1,0 +1,6 @@
+if (UNIX)
+  message("FindOpenCL.cmake is loaded from local modules.")
+  set(OpenCL_FOUND TRUE)
+  set(OpenCL_INCLUDE_DIRS /usr/local/cuda/include)
+  set(OpenCL_LIBRARIES /usr/local/cuda/lib64/libOpenCL.so)
+endif (UNIX)
