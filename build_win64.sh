@@ -1,7 +1,9 @@
 #!env bash
 set -eu
 
-mkdir build
+PROJECT_ROOT_DIR=${PWD}
+
+mkdir -p build
 cd build
 
 : ${configs:=Debug Release}

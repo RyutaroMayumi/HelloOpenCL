@@ -32,9 +32,10 @@ project(${PROJECT_NAME})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 # デバッグ設定ファイルの生成
+if (MSVC)
 set(FILE_DATA [=[
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="REPLACE_MSVC_VERSION" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerCommandArguments>REPLACE_DBG_ARGS</LocalDebuggerCommandArguments>
     <DebuggerFlavor>REPLACE_DBG_DEBUGGER</DebuggerFlavor>
@@ -47,10 +48,12 @@ set(FILE_DATA [=[
   </PropertyGroup>
 </Project>
 ]=])
+string(REGEX REPLACE "REPLACE_MSVC_VERSION" "${MSVC_VERSION}" FILE_DATA "${FILE_DATA}")
 string(REGEX REPLACE "REPLACE_DBG_ARGS" "${DBG_ARGS}" FILE_DATA "${FILE_DATA}")
 string(REGEX REPLACE "REPLACE_DBG_DEBUGGER" "${DBG_DEBUGGER}" FILE_DATA "${FILE_DATA}")
 string(REGEX REPLACE "REPLACE_DBG_ENV" "${DBG_ENV}" FILE_DATA "${FILE_DATA}")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.vcxproj.user" "${FILE_DATA}")
+endif (MSVC)
 
 # 言語の指定
 enable_language(${LANG})
@@ -64,10 +67,22 @@ else ()
 endif ()
 
 # コンパイルオプションの指定
-if (${LANG} STREQUAL "C")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TC /W4")       # for C
-elseif (${LANG} STREQUAL "CXX")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP /W4 /EHsc") # for C++
+if (${LANG} STREQUAL "C")       # for C
+  if (MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TC /W4")
+  elseif (GNU)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+  else ()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  endif ()
+elseif (${LANG} STREQUAL "CXX") # for C++
+  if (MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP /W4 /EHsc")
+  elseif (GNU)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+  else ()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  endif ()
 else ()
 endif ()
 
